@@ -8,17 +8,64 @@ const server = http.createServer(app); //creates a raw http server and passes th
 const io = socketIo(server); //attaching socketio to the server (hooking it) allow real time chat
 //express app (routes, files) -> HTTP server (real server) -> Socket.IO (real time communication layer)
 
+const sqlite3 = require('sqlite3').verbose();
+
+const db = new sqlite3.Database('./database/chat.db', (err) => {
+    if (err) {
+        console.error(err.message);
+    } else {
+        console.log("Connected to SQLite database.");
+    }
+}); //creating the database chat.db when the server runs
+
+db.run(`
+    CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        message TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+`);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 //handling client connection
 io.on('connection', (socket) => { //socket represents the one conencted user and this line is listening for a new client connection -> runs everytime a new user joins the chat
     console.log('A user connected: ' + socket.id);
+    db.all(
+        "SELECT username, message FROM messages ORDER BY id ASC",
+        [],
+        (err, rows) => {
+            if (err){
+                console.error(err);
+                return;
+            }
 
+            rows.forEach(row => {
+                socket.emit("chat message", {
+                    user: row.username,
+                    msg: row.message
+                });
+            });
+        }
+    );
     //listening for a chat message
     socket.on('chat message', (data) =>{
         console.log('message: ' + data.msg + ' from user: ' + data.user);
         //show the message to all connected clients
-        io.emit('chat message', data);
+        db.run(
+            "INSERT INTO messages (username, message) VALUES (?, ?)",
+            [data.user, data.msg],
+            (err) => {
+
+                if (err) {
+                    console.error(err.message);
+                    return;
+                }
+
+                io.emit('chat message', data);
+            }
+        );
     });
 
     //listening for when a client disconnects
