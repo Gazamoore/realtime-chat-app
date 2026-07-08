@@ -41,7 +41,7 @@ io.on('connection', (socket) => { //socket represents the one conencted user and
                 console.error(err);
                 return;
             }
-            //displaying the previous messages
+            //sending the previous message events to each connected client
             rows.forEach(row => {
                 socket.emit("chat message", {
                     user: row.username,
@@ -53,7 +53,7 @@ io.on('connection', (socket) => { //socket represents the one conencted user and
     //listening for a chat message
     socket.on('chat message', (data) =>{
         console.log('message: ' + data.msg + ' from user: ' + data.user);
-        //show the message to all connected clients and inserting into the db
+        //send the message event to all connected clients and inserting into the db
         db.run(
             "INSERT INTO messages (username, message) VALUES (?, ?)",
             [data.user, data.msg],
