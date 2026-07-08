@@ -32,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //handling client connection
 io.on('connection', (socket) => { //socket represents the one conencted user and this line is listening for a new client connection -> runs everytime a new user joins the chat
     console.log('A user connected: ' + socket.id);
+    //loading all the messages from the db
     db.all(
         "SELECT username, message FROM messages ORDER BY id ASC",
         [],
@@ -40,7 +41,7 @@ io.on('connection', (socket) => { //socket represents the one conencted user and
                 console.error(err);
                 return;
             }
-
+            //displaying the previous messages
             rows.forEach(row => {
                 socket.emit("chat message", {
                     user: row.username,
@@ -52,7 +53,7 @@ io.on('connection', (socket) => { //socket represents the one conencted user and
     //listening for a chat message
     socket.on('chat message', (data) =>{
         console.log('message: ' + data.msg + ' from user: ' + data.user);
-        //show the message to all connected clients
+        //show the message to all connected clients and inserting into the db
         db.run(
             "INSERT INTO messages (username, message) VALUES (?, ?)",
             [data.user, data.msg],
