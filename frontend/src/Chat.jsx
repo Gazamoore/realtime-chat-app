@@ -43,7 +43,7 @@ function Chat() {
         <div ref={bottomRef} />
       </ul>
  
-      <form className="composer" onSubmit={sendMessage}>
+      <form className="thisUser" onSubmit={sendMessage}>
         <input
           className="name-input"
           value={user}
