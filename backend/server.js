@@ -27,7 +27,7 @@ db.run(`
     )
 `);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 //handling client connection
 io.on('connection', (socket) => { //socket represents the one conencted user and this line is listening for a new client connection -> runs everytime a new user joins the chat
