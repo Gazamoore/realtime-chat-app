@@ -17,6 +17,6 @@ A simple real-time chat application built with:
 - Node.js
 - Express
 - Socket.IO
-- HTML
+- React
 - CSS
 - JavaScript
