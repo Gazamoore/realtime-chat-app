@@ -10,7 +10,6 @@ A simple real-time chat application built with:
 
 - Real-time messaging
 - Multiple users
-- Instant message broadcasting
 
 ## Technologies Used
 
